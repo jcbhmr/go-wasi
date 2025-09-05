@@ -1,0 +1,7 @@
+{
+    "recommendations": [
+        "bytecodealliance.wit-idl",
+        "golang.go",
+        "tinygo.vscode-tinygo"
+    ]
+}
