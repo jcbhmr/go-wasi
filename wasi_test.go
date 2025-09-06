@@ -43,12 +43,14 @@ func TestBase(t *testing.T) {
 
 import (
 	"fmt"
+	"unsafe"
 
 	_ "github.com/jcbhmr/go-wasi"
 )
 
 func main() {
 	fmt.Println("Hello!")
+	fmt.Printf("Size of uintptr: %d bytes or %d bits", unsafe.Sizeof(uintptr(0)), unsafe.Sizeof(uintptr(0)) * 8)
 }
 `)
 }

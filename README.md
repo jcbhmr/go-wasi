@@ -58,3 +58,5 @@ Development dependencies not tracked by Go:
 - https://tinygo.org/
 
 You might need to generate a local Go IDE configuration by running the VS Code command `>TinyGo target` and choosing `wasip2`. Don't commit the generated `settings.json`; it's got a machine-specific `GOROOT` path in it.
+
+The official Go toolchain uses 64-bit pointers for `GOARCH=wasm`. TinyGo uses 32-bit pointers for `wasip1` and `wasip2` targets. `//go:wasmimport` and `//go:wasmexport` top-level signature pointers are actually treated as 32-bit pointers on the official Go toolchain. 😕 This means that we effectively need a conversion from native 64-bit pointer-containing structs to `uint32`-containing structs for the official Go toolchain but we can skip that step for TinyGo. `wit-bindgen-go` does **not** account for this and just assumes 32-bit pointers and TinyGo usage.

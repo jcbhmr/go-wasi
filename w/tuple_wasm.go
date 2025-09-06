@@ -7,3 +7,7 @@ type Tuple[A, B any] struct {
 	A A
 	B B
 }
+
+func (t *Tuple[A, B]) Get() (A, B) {
+	return t.A, t.B
+}

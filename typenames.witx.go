@@ -41,6 +41,12 @@ const (
 	ClockidThreadCputimeId
 )
 
+var clockidNames = [...]string{"realtime", "monotonic", "process_cputime_id"}
+
+func (c Clockid) String() string {
+	return clockidNames[c]
+}
+
 // Error codes returned by functions.
 // Not all of these error codes are returned by the functions provided by this
 // API; some are used in higher-level library layers, and others are provided
@@ -204,6 +210,90 @@ const (
 	ErrnoNotcapable
 )
 
+var errnoNames = [...]string{
+    "success",
+    "2big",
+    "acces",
+    "addrinuse",
+    "addrnotavail",
+    "afnosupport",
+    "again",
+    "already",
+    "badf",
+    "badmsg",
+    "busy",
+    "canceled",
+    "child",
+    "connaborted",
+    "connrefused",
+    "connreset",
+    "deadlk",
+    "destaddrreq",
+    "dom",
+    "dquot",
+    "exist",
+    "fault",
+    "fbig",
+    "hostunreach",
+    "idrm",
+    "ilseq",
+    "inprogress",
+    "intr",
+    "inval",
+    "io",
+    "isconn",
+    "isdir",
+    "loop",
+    "mfile",
+    "mlink",
+    "msgsize",
+    "multihop",
+    "nametoolong",
+    "netdown",
+    "netreset",
+    "netunreach",
+    "nfile",
+    "nobufs",
+    "nodev",
+    "noent",
+    "noexec",
+    "nolck",
+    "nolink",
+    "nomem",
+    "nomsg",
+    "noprotoopt",
+    "nospc",
+    "nosys",
+    "notconn",
+    "notdir",
+    "notempty",
+    "notrecoverable",
+    "notsock",
+    "notsup",
+    "notty",
+    "nxio",
+    "overflow",
+    "ownerdead",
+    "perm",
+    "pipe",
+    "proto",
+    "protonosupport",
+    "prototype",
+    "range",
+    "rofs",
+    "spipe",
+    "srch",
+    "stale",
+    "timedout",
+    "txtbsy",
+    "xdev",
+    "notcapable",
+}
+
+func (e Errno) String() string {
+	return errnoNames[e]
+}
+
 type Rights uint64
 
 const (
@@ -289,7 +379,7 @@ type Fd w.Handle
 type Iovec struct {
 	_ structs.HostLayout
 	// The address of the buffer to be filled.
-	Buf w.Pointer[uint8]
+	Buf w.Pointer32[uint8]
 	// The length of the buffer to be filled.
 	BufLen Size
 }
@@ -298,7 +388,7 @@ type Iovec struct {
 type Ciovec struct {
 	_ structs.HostLayout
 	// The address of the buffer to be written.
-	Buf w.Pointer[uint8]
+	Buf w.Pointer32[uint8]
 	// The length of the buffer to be written.
 	BufLen Size
 }
@@ -320,6 +410,12 @@ const (
 	// Seek relative to start-of-file.
 	WhenceSet
 )
+
+var whenceNames = [...]string{"cur", "end", "set"}
+
+func (w Whence) String() string {
+	return whenceNames[w]
+}
 
 // A reference to the offset of a directory entry.
 type Dircookie uint64
@@ -352,6 +448,21 @@ const (
 	FiletypeSymbolicLink
 )
 
+var filetypeNames = [...]string{
+	"unknown",
+	"block_device",
+	"character_device",
+	"directory",
+	"regular_file",
+	"socket_dgram",
+	"socket_stream",
+	"symbolic_link",
+}
+
+func (f Filetype) String() string {
+	return filetypeNames[f]
+}
+
 // A directory entry.
 type Dirent struct {
 	_ structs.HostLayout
@@ -382,6 +493,19 @@ const (
 	// The application expects to access the specified data once and then not reuse it thereafter.
 	AdviceNoreuse
 )
+
+var adviceNames = [...]string{
+	"normal",
+	"sequential",
+	"random",
+	"willneed",
+	"dontneed",
+	"noreuse",
+}
+
+func (a Advice) String() string {
+	return adviceNames[a]
+}
 
 // File descriptor flags.
 type Fdflags uint16
@@ -497,6 +621,12 @@ const (
 	// available for writing. This event always triggers for regular files.
 	EventtypeFdWrite
 )
+
+var eventtypeNames = [...]string{"clock", "fd_read", "fd_write"}
+
+func (e Eventtype) String() string {
+	return eventtypeNames[e]
+}
 
 // The state of the file descriptor subscribed to with
 // `eventtype::fd_read` or `eventtype::fd_write`.
@@ -693,6 +823,44 @@ const (
 	SignalSys
 )
 
+var signalNames = [...]string{
+    "none",
+    "hup",
+    "int",
+    "quit",
+    "ill",
+    "trap",
+    "abrt",
+    "bus",
+    "fpe",
+    "kill",
+    "usr1",
+    "segv",
+    "usr2",
+    "pipe",
+    "alrm",
+    "term",
+    "chld",
+    "cont",
+    "stop",
+    "tstp",
+    "ttin",
+    "ttou",
+    "urg",
+    "xcpu",
+    "xfsz",
+    "vtalrm",
+    "prof",
+    "winch",
+    "poll",
+    "pwr",
+    "sys",
+}
+
+func (s Signal) String() string {
+	return signalNames[s]
+}
+
 // Flags provided to `sock_recv`.
 type Riflags uint16
 
@@ -732,6 +900,12 @@ const (
 	// A pre-opened directory
 	PreopentypeDir Preopentype = iota
 )
+
+var preopentypeNames = [...]string{"dir"}
+
+func (p Preopentype) String() string {
+	return preopentypeNames[p]
+}
 
 // The contents of a $prestat when type is `preopentype::dir`.
 type PrestatDir struct {

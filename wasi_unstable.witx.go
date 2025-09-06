@@ -20,8 +20,9 @@ import (
 // Each argument is expected to be `\0` terminated.
 //
 //go:nosplit
-func ArgsGet(argv *w.Pointer[uint8], argvBuf *uint8) Errno {
-	return wasmimport_args_get(argv, argvBuf)
+func ArgsGet(argv *w.Pointer32[uint8], argvBuf *uint8) (r w.Result[struct{}, Errno]) {
+	r.Set(struct{}{}, Errno(wasmimport_args_get(argv, argvBuf)))
+	return
 }
 
 // Return command-line argument data sizes.
@@ -32,42 +33,53 @@ func ArgsGet(argv *w.Pointer[uint8], argvBuf *uint8) Errno {
 //go:nosplit
 func ArgsSizesGet() (w.Tuple[Size, Size], Errno) {
 	var t w.Tuple[Size, Size]
-	e := wasmimport_args_sizes_get(&t.A, &t.B)
+	e := Errno(wasmimport_args_sizes_get(&t.A, &t.B))
 	return t, e
 }
 
 //go:nosplit
-func EnvironGet(environ *w.Pointer[uint8], environBuf *uint8) Errno {
-	return wasmimport_environ_get(environ, environBuf)
+func EnvironGet(environ *w.Pointer32[uint8], environBuf *uint8) Errno {
+	return Errno(wasmimport_environ_get(environ, environBuf))
 }
 
 //go:nosplit
 func EnvironSizesGet() (w.Tuple[Size, Size], Errno) {
 	var t w.Tuple[Size, Size]
-	e := wasmimport_environ_sizes_get(&t.A, &t.B)
+	e := Errno(wasmimport_environ_sizes_get(&t.A, &t.B))
 	return t, e
 }
 
 //go:nosplit
 func ClockResGet(id Clockid) (Timestamp, Errno) {
 	var t Timestamp
-	e := wasmimport_clock_res_get(id, &t)
+	e := Errno(wasmimport_clock_res_get(id, &t))
 	return t, e
 }
 
 //go:nosplit
 func ClockTimeGet(id Clockid, precision Timestamp) (Timestamp, Errno) {
 	var t Timestamp
-	e := wasmimport_clock_time_get(id, precision, &t)
+	e := Errno(wasmimport_clock_time_get(id, precision, &t))
 	return t, e
 }
 
 //go:nosplit
 func FdAdvise(fd Fd, offset Filesize, len Filesize, advice Advice) Errno {
-	return wasmimport_fd_advise(fd, offset, len, advice)
+	return Errno(wasmimport_fd_advise(fd, offset, len, advice32(advice)))
 }
 
 //go:nosplit
 func FdAllocate(fd Fd, offset Filesize, len Filesize) Errno {
-	return wasmimport_fd_allocate(fd, offset, len)
+	return Errno(wasmimport_fd_allocate(fd, offset, len))
 }
+
+//go:nosplit
+func FdClose(fd Fd) Errno {
+	return Errno(wasmimport_fd_close(fd))
+}
+
+//go:nosplit
+func FdDatasync(fd Fd) Errno {
+	return Errno(wasmimport_fd_datasync(fd))
+}
+
