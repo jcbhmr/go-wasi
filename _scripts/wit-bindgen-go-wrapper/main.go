@@ -15,7 +15,7 @@ import (
 )
 
 // var outFlag = flag.String("out", "", "output directory")
-var witFlag = flag.String("wit", "./wit/", "wit directory")
+// var witFlag = flag.String("wit", "./wit/", "wit directory")
 var cmFlag = flag.String("cm", "", "cm import path")
 var hoistFlag = flag.String("hoist", "", "which path to hoist out of generated bindings")
 
@@ -35,7 +35,7 @@ func main() {
 	if *cmFlag != "" {
 		args = append(args, "--cm", *cmFlag)
 	}
-	args = append(args, *witFlag)
+	args = append(args, "./wit/")
 	cmd := exec.Command("go", args...)
 	log.Printf("running %q", cmd)
 	output, err := cmd.CombinedOutput()

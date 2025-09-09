@@ -12,13 +12,13 @@ Looking for WASI Preview 0? See [v0.0.0](https://github.com/jcbhmr/go-wasi/tree/
 ✅ Works with the official Go toolchain \
 🤏 Works with the TinyGo compiler
 
-- **[cli](cli)**
-- **[clocks](clocks)**
-- **[filesystem](filesystem)**
-- **[http](http)**
-- **[io](io)**
-- **[random](random)**
-- **[sockets](sockets)**
+- **[cli](https://pkg.go.dev/github.com/jcbhmr/go-wasi/cli)**
+- **[clocks](https://pkg.go.dev/github.com/jcbhmr/go-wasi/clocks)**
+- **[filesystem](https://pkg.go.dev/github.com/jcbhmr/go-wasi/filesystem)**
+- **[http](https://pkg.go.dev/github.com/jcbhmr/go-wasi/http)**
+- **[io](https://pkg.go.dev/github.com/jcbhmr/go-wasi/io)**
+- **[random](https://pkg.go.dev/github.com/jcbhmr/go-wasi/random)**
+- **[sockets](https://pkg.go.dev/github.com/jcbhmr/go-wasi/sockets)**
 
 ## Development
 
