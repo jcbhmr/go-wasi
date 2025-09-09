@@ -10,9 +10,11 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"regexp"
+	"strings"
 )
 
-var outFlag = flag.String("out", "", "output directory")
+// var outFlag = flag.String("out", "", "output directory")
 var witFlag = flag.String("wit", "./wit/", "wit directory")
 var cmFlag = flag.String("cm", "", "cm import path")
 var hoistFlag = flag.String("hoist", "", "which path to hoist out of generated bindings")
@@ -23,7 +25,7 @@ func main() {
 		log.Fatal("-hoist <path> flag must be present")
 	}
 
-	log.Printf("Removing %q recursively", "./.out/wit-bindgen-go-wrapper/")
+	log.Printf("removing %q recursively", "./.out/wit-bindgen-go-wrapper/")
 	err := os.RemoveAll("./.out/wit-bindgen-go-wrapper/")
 	if err != nil {
 		log.Fatalf("failed to remove %q recursively: %v", "./.out/wit-bindgen-go-wrapper/", err)
@@ -35,7 +37,7 @@ func main() {
 	}
 	args = append(args, *witFlag)
 	cmd := exec.Command("go", args...)
-	log.Printf("Running %q", cmd)
+	log.Printf("running %q", cmd)
 	output, err := cmd.CombinedOutput()
 	if len(output) > 0 {
 		log.Printf("%s", output)
@@ -53,13 +55,13 @@ func main() {
 	for _, e := range entries {
 		eRelativeName := filepath.Join(hoistFrom, e.Name())
 
-		log.Printf("Removing %q recursively", e.Name())
+		log.Printf("removing %q recursively", e.Name())
 		err := os.RemoveAll(e.Name())
 		if err != nil {
 			log.Fatalf("failed to remove %q recursively", err)
 		}
 
-		log.Printf("Copying %q to %q", eRelativeName, e.Name())
+		log.Printf("copying %q to %q", eRelativeName, e.Name())
 		err = os.CopyFS(e.Name(), os.DirFS(eRelativeName))
 		if err != nil {
 			log.Fatalf("failed to copy %q to %q", eRelativeName, e.Name())
@@ -72,34 +74,30 @@ func main() {
 			if d.IsDir() {
 				return nil
 			}
-			isGo, err := filepath.Match("*.go", d.Name())
-			if err != nil {
-				panic(fmt.Errorf("failed to match %q against %q: %w", d.Name(), "*.go", err))
-			}
-			if !isGo {
-				return nil
-			}
-
-			code, err := os.ReadFile(path)
-			if err != nil {
-				return fmt.Errorf("failed to read file %q: %w", path, err)
-			}
-			code = bytes.Replace(code, []byte("DO NOT EDIT.\n"), []byte("DO NOT EDIT.\n\n//go:build wasm\n"), 1)
-			code = bytes.ReplaceAll(code, []byte(hoistFromImportPathOld), nil)
-			err = os.WriteFile(path, code, 0o666)
-			if err != nil {
-				return fmt.Errorf("failed to write %d bytes to file %q: %w", len(code), path, err)
+			if d.Name() == "empty.s" {
+				log.Printf("removing %q", path)
+				err = os.Remove(path)
+				if err != nil {
+					return fmt.Errorf("failed to remove %q: %w", path, err)
+				}
+			} else if strings.HasSuffix(d.Name(), ".wit.go") || strings.HasSuffix(d.Name(), ".wasm.go") {
+				log.Printf("editing %q", path)
+				code, err := os.ReadFile(path)
+				if err != nil {
+					return fmt.Errorf("failed to read file %q: %w", path, err)
+				}
+				code = bytes.Replace(code, []byte("DO NOT EDIT.\n"), []byte("DO NOT EDIT.\n\n//go:build wasm && tinygo\n"), 1)
+				code = bytes.ReplaceAll(code, []byte(hoistFromImportPathOld), nil)
+				code = regexp.MustCompile(`"(.*?)/\.out/wit-bindgen-go-wrapper/wasi/`).ReplaceAll(code, []byte(`"github.com/jcbhmr/go-wasi/`))
+				err = os.WriteFile(path, code, 0o666)
+				if err != nil {
+					return fmt.Errorf("failed to write %d bytes to file %q: %w", len(code), path, err)
+				}
 			}
 			return nil
 		})
 		if err != nil {
 			log.Fatal(err)
-		}
-
-		log.Printf("Removing %q", filepath.Join(e.Name(), "empty.s"))
-		err = os.Remove(filepath.Join(e.Name(), "empty.s"))
-		if err != nil {
-			log.Fatalf("failed to remove %q: %v", filepath.Join(e.Name(), "empty.s"), err)
 		}
 	}
 }
