@@ -1,12 +1,11 @@
-//go:build wasm && gc
+//go:build wasm && !tinygo
 
 package wasi
 
 import (
 	"structs"
-	"unsafe"
 
-	"go.bytecodealliance.org/cm"
+	"github.com/jcbhmr/bytecodealliance-go-modules/cm"
 )
 
 // A region of memory for scatter/gather reads.

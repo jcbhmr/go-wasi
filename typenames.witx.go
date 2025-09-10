@@ -7,7 +7,7 @@ package wasi
 import (
 	"structs"
 
-	"go.bytecodealliance.org/cm"
+	"github.com/jcbhmr/bytecodealliance-go-modules/cm"
 )
 
 type Size uint32
@@ -901,8 +901,11 @@ type PrestatDir struct {
 }
 
 // Information about a pre-opened capability.
-type Prestat w.Union[Preopentype, PrestatDir, uint32]
+type Prestat cm.Variant[uint8, PrestatDir, PrestatDir]
 
-func (p *Prestat) PrestatDir() bool {
-	return p.Tag() == 0
+func PrestatPrestatDir(data PrestatDir) Prestat {
+	return cm.New[Prestat](0, data)
+}
+func (p *Prestat) PrestatDir() *PrestatDir {
+	return cm.Case[PrestatDir](p, 0)
 }

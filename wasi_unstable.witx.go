@@ -12,7 +12,9 @@ Some content here is derived from https://github.com/NuxiNL/cloudabi.
 package wasi
 
 import (
-	"github.com/jcbhmr/go-wasi/w"
+	"unsafe"
+
+	"github.com/jcbhmr/bytecodealliance-go-modules/cm"
 )
 
 // Read command-line argument data.
@@ -20,8 +22,18 @@ import (
 // Each argument is expected to be `\0` terminated.
 //
 //go:nosplit
-func ArgsGet(argv *w.Pointer32[uint8], argvBuf *uint8) (r w.Result[struct{}, Errno]) {
-	r.Set(struct{}{}, Errno(wasmimport_args_get(argv, argvBuf)))
+func ArgsGet(argv **uint8, argvBuf *uint8) (r cm.Result[Errno, struct{}, Errno]) {
+	argv2 := []uint32{}
+	for p := argv; p != nil && *p != nil; p = (**uint8)(unsafe.Add(unsafe.Pointer(p), unsafe.Sizeof(*p))) {
+		argv2 = append(argv2, cm.PointerToU32(p))
+	}
+	argv3 := unsafe.SliceData(argv2)
+	v := Errno(wasmimport_args_get(argv3, argvBuf))
+	if v == 0 {
+		r.SetOK(struct{}{})
+	} else {
+		r.SetErr(v)
+	}
 	return
 }
 
@@ -31,20 +43,25 @@ func ArgsGet(argv *w.Pointer32[uint8], argvBuf *uint8) (r w.Result[struct{}, Err
 // data, or an error.
 //
 //go:nosplit
-func ArgsSizesGet() (w.Tuple[Size, Size], Errno) {
-	var t w.Tuple[Size, Size]
-	e := Errno(wasmimport_args_sizes_get(&t.A, &t.B))
+func ArgsSizesGet() (cm.Tuple[Size, Size], Errno) {
+	var t cm.Tuple[Size, Size]
+	e := Errno(wasmimport_args_sizes_get(&t.F0, &t.F1))
 	return t, e
 }
 
 //go:nosplit
-func EnvironGet(environ *w.Pointer32[uint8], environBuf *uint8) Errno {
-	return Errno(wasmimport_environ_get(environ, environBuf))
+func EnvironGet(environ **uint8, environBuf *uint8) Errno {
+	environ2 := []uint32{}
+	for p := environ; p != nil && *p != nil; p = (**uint8)(unsafe.Add(unsafe.Pointer(p), unsafe.Sizeof(*p))) {
+		environ2 = append(environ2, cm.PointerToU32(p))
+	}
+	environ3 := unsafe.SliceData(environ2)
+	return Errno(wasmimport_environ_get(environ3, environBuf))
 }
 
 //go:nosplit
-func EnvironSizesGet() (w.Tuple[Size, Size], Errno) {
-	var t w.Tuple[Size, Size]
+func EnvironSizesGet() (cm.Tuple[Size, Size], Errno) {
+	var t cm.Tuple[Size, Size]
 	e := Errno(wasmimport_environ_sizes_get(&t.A, &t.B))
 	return t, e
 }
@@ -82,4 +99,3 @@ func FdClose(fd Fd) Errno {
 func FdDatasync(fd Fd) Errno {
 	return Errno(wasmimport_fd_datasync(fd))
 }
-

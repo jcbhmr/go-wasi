@@ -79,7 +79,7 @@ func wasmimport_fd_filestat_set_times(fd Fd, atim Timestamp, mtim Timestamp, fst
 
 //go:wasmimport wasi_unstable fd_pread
 //go:noescape
-func wasmimport_fd_pread(fd Fd, iovsData *Iovec, iovsLen uint32, offset Filesize, s *Size) errno32
+func wasmimport_fd_pread(fd Fd, iovsData *Iovec32, iovsLen uint32, offset Filesize, s *Size) errno32
 
 //go:wasmimport wasi_unstable fd_prestat_get
 //go:noescape
@@ -91,11 +91,11 @@ func wasmimport_fd_prestat_dir_name(fd Fd, path *uint8, pathLen Size) errno32
 
 //go:wasmimport wasi_unstable fd_pwrite
 //go:noescape
-func wasmimport_fd_pwrite(fd Fd, iovsData *Ciovec, iovsLen uint32, offset Filesize, s *Size) errno32
+func wasmimport_fd_pwrite(fd Fd, iovsData *Ciovec32, iovsLen uint32, offset Filesize, s *Size) errno32
 
 //go:wasmimport wasi_unstable fd_read
 //go:noescape
-func wasmimport_fd_read(fd Fd, iovsData *Iovec, iovsLen uint32, s *Size) errno32
+func wasmimport_fd_read(fd Fd, iovsData *Iovec32, iovsLen uint32, s *Size) errno32
 
 //go:wasmimport wasi_unstable fd_readdir
 //go:noescape
@@ -119,7 +119,7 @@ func wasmimport_fd_tell(fd Fd, f *Filesize) errno32
 
 //go:wasmimport wasi_unstable fd_write
 //go:noescape
-func wasmimport_fd_write(fd Fd, iovsData *Ciovec, iovsLen uint32, s *Size) errno32
+func wasmimport_fd_write(fd Fd, iovsData *Ciovec32, iovsLen uint32, s *Size) errno32
 
 //go:wasmimport wasi_unstable path_create_directory
 //go:noescape
@@ -183,11 +183,11 @@ func wasmimport_random_get(buf *uint8, bufLen Size) errno32
 
 //go:wasmimport wasi_unstable sock_recv
 //go:noescape
-func wasmimport_sock_recv(fd Fd, riDataData *Iovec, riDataLen uint32, riFlags riflags32, t0 *Size, t1 *Roflags) errno32
+func wasmimport_sock_recv(fd Fd, riDataData *Iovec32, riDataLen uint32, riFlags riflags32, t0 *Size, t1 *Roflags) errno32
 
 //go:wasmimport wasi_unstable sock_send
 //go:noescape
-func wasmimport_sock_send(fd Fd, siDataData *Ciovec, siDataLen uint32, siFlags siflags32, s *Size) errno32
+func wasmimport_sock_send(fd Fd, siDataData *Ciovec32, siDataLen uint32, siFlags siflags32, s *Size) errno32
 
 //go:wasmimport wasi_unstable sock_shutdown
 //go:noescape
