@@ -1,18 +1,13 @@
 //go:build wasm
 
-/*
-https://github.com/WebAssembly/WASI/blob/main/legacy/preview0/witx/typenames.witx
+// https://github.com/WebAssembly/WASI/blob/main/legacy/preview0/witx/typenames.witx
 
-Type names used by low-level WASI interfaces.
-
-Some content here is derived from https://github.com/NuxiNL/cloudabi.
-*/
 package wasi
 
 import (
 	"structs"
 
-	"github.com/jcbhmr/go-wasi/w"
+	"go.bytecodealliance.org/cm"
 )
 
 type Size uint32
@@ -211,83 +206,83 @@ const (
 )
 
 var errnoNames = [...]string{
-    "success",
-    "2big",
-    "acces",
-    "addrinuse",
-    "addrnotavail",
-    "afnosupport",
-    "again",
-    "already",
-    "badf",
-    "badmsg",
-    "busy",
-    "canceled",
-    "child",
-    "connaborted",
-    "connrefused",
-    "connreset",
-    "deadlk",
-    "destaddrreq",
-    "dom",
-    "dquot",
-    "exist",
-    "fault",
-    "fbig",
-    "hostunreach",
-    "idrm",
-    "ilseq",
-    "inprogress",
-    "intr",
-    "inval",
-    "io",
-    "isconn",
-    "isdir",
-    "loop",
-    "mfile",
-    "mlink",
-    "msgsize",
-    "multihop",
-    "nametoolong",
-    "netdown",
-    "netreset",
-    "netunreach",
-    "nfile",
-    "nobufs",
-    "nodev",
-    "noent",
-    "noexec",
-    "nolck",
-    "nolink",
-    "nomem",
-    "nomsg",
-    "noprotoopt",
-    "nospc",
-    "nosys",
-    "notconn",
-    "notdir",
-    "notempty",
-    "notrecoverable",
-    "notsock",
-    "notsup",
-    "notty",
-    "nxio",
-    "overflow",
-    "ownerdead",
-    "perm",
-    "pipe",
-    "proto",
-    "protonosupport",
-    "prototype",
-    "range",
-    "rofs",
-    "spipe",
-    "srch",
-    "stale",
-    "timedout",
-    "txtbsy",
-    "xdev",
-    "notcapable",
+	"success",
+	"2big",
+	"acces",
+	"addrinuse",
+	"addrnotavail",
+	"afnosupport",
+	"again",
+	"already",
+	"badf",
+	"badmsg",
+	"busy",
+	"canceled",
+	"child",
+	"connaborted",
+	"connrefused",
+	"connreset",
+	"deadlk",
+	"destaddrreq",
+	"dom",
+	"dquot",
+	"exist",
+	"fault",
+	"fbig",
+	"hostunreach",
+	"idrm",
+	"ilseq",
+	"inprogress",
+	"intr",
+	"inval",
+	"io",
+	"isconn",
+	"isdir",
+	"loop",
+	"mfile",
+	"mlink",
+	"msgsize",
+	"multihop",
+	"nametoolong",
+	"netdown",
+	"netreset",
+	"netunreach",
+	"nfile",
+	"nobufs",
+	"nodev",
+	"noent",
+	"noexec",
+	"nolck",
+	"nolink",
+	"nomem",
+	"nomsg",
+	"noprotoopt",
+	"nospc",
+	"nosys",
+	"notconn",
+	"notdir",
+	"notempty",
+	"notrecoverable",
+	"notsock",
+	"notsup",
+	"notty",
+	"nxio",
+	"overflow",
+	"ownerdead",
+	"perm",
+	"pipe",
+	"proto",
+	"protonosupport",
+	"prototype",
+	"range",
+	"rofs",
+	"spipe",
+	"srch",
+	"stale",
+	"timedout",
+	"txtbsy",
+	"xdev",
+	"notcapable",
 }
 
 func (e Errno) String() string {
@@ -373,28 +368,10 @@ const (
 )
 
 // A file descriptor handle.
-type Fd w.Handle
+type Fd cm.Rep
 
-// A region of memory for scatter/gather reads.
-type Iovec struct {
-	_ structs.HostLayout
-	// The address of the buffer to be filled.
-	Buf w.Pointer32[uint8]
-	// The length of the buffer to be filled.
-	BufLen Size
-}
-
-// A region of memory for scatter/gather writes.
-type Ciovec struct {
-	_ structs.HostLayout
-	// The address of the buffer to be written.
-	Buf w.Pointer32[uint8]
-	// The length of the buffer to be written.
-	BufLen Size
-}
-
-type IovecArray w.List[Iovec]
-type CiovecArray w.List[Ciovec]
+type IovecArray cm.List[Iovec]
+type CiovecArray cm.List[Ciovec]
 
 // Relative offset within a file.
 type Filedelta int64
@@ -699,16 +676,25 @@ type SubscriptionFdReadwrite struct {
 }
 
 // The contents of a `subscription`.
-type SubscriptionU w.Union[Eventtype, SubscriptionClock, uint64]
+type SubscriptionU cm.Variant[uint8, SubscriptionClock, SubscriptionClock]
 
-func (s *SubscriptionU) SubscriptionClock() bool {
-	return s.Tag() == 0
+func SubscriptionUSubscriptionClock(data SubscriptionClock) SubscriptionU {
+	return cm.New[SubscriptionU](0, data)
 }
-func (s *SubscriptionU) SubscriptionFdReadwrite() bool {
-	return s.Tag() == 1
+func (s *SubscriptionU) SubscriptionClock() *SubscriptionClock {
+	return cm.Case[SubscriptionClock](s, 0)
 }
-func (s *SubscriptionU) SubscriptionFdReadwrite2() bool {
-	return s.Tag() == 2
+func SubscriptionUSubscriptionFdReadwrite(data SubscriptionFdReadwrite) SubscriptionU {
+	return cm.New[SubscriptionU](1, data)
+}
+func (s *SubscriptionU) SubscriptionFdReadwrite() *SubscriptionFdReadwrite {
+	return cm.Case[SubscriptionFdReadwrite](s, 1)
+}
+func SubscriptionUSubscriptionFdReadwrite2(data SubscriptionFdReadwrite) SubscriptionU {
+	return cm.New[SubscriptionU](1, data)
+}
+func (s *SubscriptionU) SubscriptionFdReadwrite2() *SubscriptionFdReadwrite {
+	return cm.Case[SubscriptionFdReadwrite](s, 1)
 }
 
 // Subscription to an event.
@@ -824,37 +810,37 @@ const (
 )
 
 var signalNames = [...]string{
-    "none",
-    "hup",
-    "int",
-    "quit",
-    "ill",
-    "trap",
-    "abrt",
-    "bus",
-    "fpe",
-    "kill",
-    "usr1",
-    "segv",
-    "usr2",
-    "pipe",
-    "alrm",
-    "term",
-    "chld",
-    "cont",
-    "stop",
-    "tstp",
-    "ttin",
-    "ttou",
-    "urg",
-    "xcpu",
-    "xfsz",
-    "vtalrm",
-    "prof",
-    "winch",
-    "poll",
-    "pwr",
-    "sys",
+	"none",
+	"hup",
+	"int",
+	"quit",
+	"ill",
+	"trap",
+	"abrt",
+	"bus",
+	"fpe",
+	"kill",
+	"usr1",
+	"segv",
+	"usr2",
+	"pipe",
+	"alrm",
+	"term",
+	"chld",
+	"cont",
+	"stop",
+	"tstp",
+	"ttin",
+	"ttou",
+	"urg",
+	"xcpu",
+	"xfsz",
+	"vtalrm",
+	"prof",
+	"winch",
+	"poll",
+	"pwr",
+	"sys",
 }
 
 func (s Signal) String() string {

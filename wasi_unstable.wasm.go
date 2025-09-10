@@ -2,8 +2,6 @@
 
 package wasi
 
-import "github.com/jcbhmr/go-wasi/w"
-
 type errno32 uint32
 type advice32 uint32
 type fdflags32 uint32
@@ -17,7 +15,7 @@ type siflags32 uint32
 
 //go:wasmimport wasi_unstable args_get
 //go:noescape
-func wasmimport_args_get(argv *w.Pointer32[uint8], argvBuf *uint8) errno32
+func wasmimport_args_get(argv *uint32, argvBuf *uint8) errno32
 
 //go:wasmimport wasi_unstable args_sizes_get
 //go:noescape
@@ -25,7 +23,7 @@ func wasmimport_args_sizes_get(t0 *Size, t1 *Size) errno32
 
 //go:wasmimport wasi_unstable environ_get
 //go:noescape
-func wasmimport_environ_get(environ *w.Pointer32[uint8], environBuf *uint8) errno32
+func wasmimport_environ_get(environ *uint32, environBuf *uint8) errno32
 
 //go:wasmimport wasi_unstable environ_sizes_get
 //go:noescape
